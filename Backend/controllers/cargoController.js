@@ -1,14 +1,5 @@
 import { Admin, CargoItem, Container } from '../models/cargoModels.js';
 
-export const createAdmin = async (req, res) => {
-  const admin = new Admin(req.body);
-  try {
-    await admin.save();
-    res.status(201).json(admin);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
 
 export const addContainer = async (req, res) => {
   const { adminId, containerData } = req.body;

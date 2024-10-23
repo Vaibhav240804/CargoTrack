@@ -11,6 +11,8 @@ export const ContainerForm = ({ adminId, onContainerAdded }) => {
     height: "",
     availableFrom: "",
     availableUntil: "",
+    from: "Pune",
+    to: "Mumbai",
   });
 
   const handleChange = (e) => {
@@ -20,25 +22,17 @@ export const ContainerForm = ({ adminId, onContainerAdded }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = async () => {
-        try {
-          const response = await Api.setContainer({
-            adminId,
-            containerData: formData,
-          })
-            .then((res) => {
-              console.log(res);
-              toast.success("Containers fetched!!");
-            })
-            .catch((err) => {
-              console.log(err);
-              toast.error(err.response.data.message);
-            });
-          setContainers(response.data);
-        } catch (error) {
-          console.error("Error fetching containers", error);
-        }
-      };
+      const response = await Api.setContainer({
+        adminId,
+        containerData: formData,
+      });
+      console.log(response);
+      toast.success("Container added successfully!");
+      setContainers(response.data);
+    } catch (error) {
+      console.error("Error adding container", error);
+      toast.error(error.response?.data?.message || "Error adding container");
+
       toast.success("Container added successfully!");
       onContainerAdded();
       setFormData({
@@ -47,9 +41,9 @@ export const ContainerForm = ({ adminId, onContainerAdded }) => {
         height: "",
         availableFrom: "",
         availableUntil: "",
+        from: "Pune",
+        to: "Mumbai",
       });
-    } catch (error) {
-      console.error("Error adding container:", error);
     }
   };
 

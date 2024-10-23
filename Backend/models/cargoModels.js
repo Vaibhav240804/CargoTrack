@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 // Schema for a cargo item
 const cargoItemSchema = new mongoose.Schema({
@@ -21,7 +21,7 @@ const cargoItemSchema = new mongoose.Schema({
 });
 
 // Method to calculate the volume of the cargo item
-cargoItemSchema.methods.calculateVolume = function() {
+cargoItemSchema.methods.calculateVolume = function () {
   return this.length * this.breadth * this.height; // Volume in cubic units
 };
 
@@ -47,24 +47,34 @@ const containerSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  cargoItems: [cargoItemSchema], // Array of items in the container
+  from:{
+    type: String,
+    required: true,
+  },
+  to:{
+    type: String,
+    required: true
+  },
+  cargoItems: [],
 });
 
 // Method to calculate the volume of the container
-containerSchema.methods.calculateVolume = function() {
+containerSchema.methods.calculateVolume = function () {
   return this.length * this.breadth * this.height; // Volume in cubic units
 };
 
 // Method to check available space in the container
-containerSchema.methods.checkAvailableSpace = function(item) {
-  const currentUsedSpace = this.cargoItems.reduce((acc, cargoItem) => acc + cargoItem.calculateVolume(), 0);
+containerSchema.methods.checkAvailableSpace = function (item) {
+  const currentUsedSpace = this.cargoItems.reduce(
+    (acc, cargoItem) => acc + cargoItem.calculateVolume(),
+    0
+  );
   const totalVolume = this.calculateVolume();
   const availableSpace = totalVolume - currentUsedSpace;
-  
+
   return availableSpace >= item.calculateVolume(); // Return true if there's enough space for the item
 };
 
-// Schema for the admin
 const adminSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -83,7 +93,10 @@ const adminSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  containers: [containerSchema], // Array of containers managed by the admin
+  otp: {
+    type: String,
+  },
+  containers: [containerSchema],
 });
 
 const Admin = mongoose.model("Admin", adminSchema);

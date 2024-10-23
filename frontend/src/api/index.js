@@ -61,12 +61,23 @@ class Api {
     return await api.post("api/user/send-product", data);
   }
 
+  static async registerAdmin(data) {
+    return await api.post("api/cargo/admin/register", data);
+  }
+
+  static async loginAdmin(data) {
+    return await api.post("api/cargo/admin/login", data);
+  }
+
   static async getContainers(id) {
     return await api.get(`api/cargo/admin/${id}/containers`);
   }
 
-  static async setContainer(data) {
-    return await api.post(`api/cargo/admin/containers`, data);
+  static async setContainer({ adminId, containerData }) {
+    return await api.post(`api/cargo/admin/container`, {
+      adminId,
+      containerData,
+    });
   }
 }
 

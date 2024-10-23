@@ -5,29 +5,30 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import { Admin } from "../models/cargoModels.js";
 
 dotenv.config();
 
 class UserController {
-  constructor() { }
+  constructor() {}
 
   testing = async (req, res) => {
     try {
-        const { name } = req.body;
-        const response = 'Hello ' + name;
-        res.status(200).json({ message: "Hello World", response });
+      const { name } = req.body;
+      const response = "Hello " + name;
+      res.status(200).json({ message: "Hello World", response });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Internal Server Error" });
+      console.log(error);
+      res.status(500).json({ message: "Internal Server Error" });
     }
-  }
+  };
 
   generateOTP() {
     return crypto.randomInt(100000, 999999);
   }
 
   // send email
-  sendEmail = async (email) => {
+  sendEmail = async (email, isAdmin = false) => {
     try {
       let transporter = nodemailer.createTransport({
         service: "gmail",
@@ -38,9 +39,14 @@ class UserController {
       });
 
       let otp = this.generateOTP();
-
-      const user = await User.findOne({ email });
-      if (!user) return res.status(404).json({ message: "User does not exist!" });
+      let user;
+      if (isAdmin === true) {
+        user = await Admin.findOne({ email });
+      } else {
+        user = await User.findOne({ email });
+      }
+      if (!user)
+        return res.status(404).json({ message: "User does not exist!" });
       user.otp = otp;
       await user.save();
       let mailOptions = {
@@ -55,7 +61,7 @@ class UserController {
       console.log(error);
       // res.status(500).json({ message: "Internal Server Error" });
     }
-  }
+  };
 
   // create user
   register = async (req, res) => {
@@ -69,23 +75,61 @@ class UserController {
       console.log(error);
       res.status(500).json({ message: "Internal Server Error" });
     }
-  }
+  };
 
   // login user
   login = async (req, res) => {
     try {
       const { email, password } = req.body;
       const user = await User.findOne({ email });
-      if (!user) return res.status(404).json({ message: "User does not exist!" });
+      if (!user)
+        return res.status(404).json({ message: "Admin does not exist!" });
       const isMatch = bcrypt.compare(password, user.password);
-      if (!isMatch) return res.status(400).json({ message: "Incorrect Password!" });
+      if (!isMatch)
+        return res.status(400).json({ message: "Incorrect Password!" });
       this.sendEmail(email);
       res.status(200).json({ message: "success" });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal Server Error" });
     }
-  }
+  };
+
+  registerAdmin = async (req, res) => {
+    try {
+      const { name, email, phone, password } = req.body;
+      const passwordHash = await bcrypt.hash(password, 10);
+      const newAdmin = new Admin({
+        name,
+        email,
+        phone,
+        password: passwordHash,
+        containers: [],
+      });
+      await newAdmin.save();
+      res.status(200).json({ message: "success", adminId: newAdmin._id });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
+
+  loginAdmin = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const user = await Admin.findOne({ email });
+      if (!user)
+        return res.status(404).json({ message: "User does not exist!" });
+      const isMatch = bcrypt.compare(password, user.password);
+      if (!isMatch)
+        return res.status(400).json({ message: "Incorrect Password!" });
+      this.sendEmail(email, true);
+      res.status(200).json({ message: "success", adminId: user._id });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
 
   // verify otp
   verifyOtp = async (req, res) => {
@@ -94,50 +138,71 @@ class UserController {
       const user = await User.findOne({ email });
       if (otp == 123456) {
         const secretKey = process.env.JWTkey;
-        const token = jwt.sign({ 
-          id: user._id, 
-          email: user.email,
-          name: user.name,
-        }, 
-        secretKey,
-        { expiresIn: "12h" }
+        const token = jwt.sign(
+          {
+            id: user._id,
+            email: user.email,
+            name: user.name,
+          },
+          secretKey,
+          { expiresIn: "12h" }
         );
         res.status(200).json({ message: "success", token });
-        return
+        return;
       }
-      if (!user) return res.status(201).json({ message: "User does not exist!" });
-      if (user.otp != otp) return res.status(201).json({ message: "Incorrect OTP!" });
+      if (!user) {
+        const aduser = await Admin.findOne({ email });
+        if (!aduser)
+          return res.status(201).json({ message: "User does not exist!" });
+        else if (aduser.otp != otp)
+          return res.status(201).json({ message: "Incorrect OTP!" });
+        else {
+          aduser.otp = "";
+          await aduser.save();
+          const secretKey = process.env.JWTkey;
+          const token = jwt.sign(
+            {
+              id: aduser._id,
+              email: aduser.email,
+            },
+            secretKey,
+            { expiresIn: "12h" }
+          );
+          return res.status(200).json({ message: "success", token });
+        }
+      }
+      if (user.otp != otp)
+        return res.status(201).json({ message: "Incorrect OTP!" });
       user.otp = "";
       await user.save();
       const secretKey = process.env.JWTkey;
-      const token = jwt.sign({ 
-        id: user._id, 
-        email: user.email 
-      }, 
-      secretKey,
-      { expiresIn: "12h" }
+      const token = jwt.sign(
+        {
+          id: user._id,
+          email: user.email,
+        },
+        secretKey,
+        { expiresIn: "12h" }
       );
       res.status(200).json({ message: "success", token });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal Server Error" });
     }
-  }
+  };
 
   sendUserProducts = async (req, res) => {
     try {
       const { email } = req.body;
       const user = await User.findOne({ email });
-      if (!user) return res.status(404).json({ message: "User does not exist!" });
+      if (!user)
+        return res.status(404).json({ message: "User does not exist!" });
       res.status(200).json({ message: "success", products: user.products });
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal Server Error" });
     }
-  }
-  
+  };
 }
-
 
 export default UserController;

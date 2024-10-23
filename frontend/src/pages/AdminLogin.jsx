@@ -49,10 +49,11 @@ export default  function AdminLogin() {
       toggle(false);
       return;
     }
-    await Api.registerUser(signupInfo)
+    await Api.registerAdmin(signupInfo)
       .then((res) => {
         console.log(res);
         toast.success("Account created successfully");
+        localStorage.setItem("token", res.data.token);
         toggle(true);
         setSignupInfo({
           name: "",
@@ -77,7 +78,7 @@ export default  function AdminLogin() {
       toggle(true);
       return;
     }
-    await Api.loginUser(loginInfo)
+    await Api.loginAdmin(loginInfo)
       .then((res) => {
         console.log(res);
         toast.success("OTP sent to your email!");
