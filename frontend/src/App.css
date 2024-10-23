@@ -3,5 +3,11 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
+  scrollbar-width: none;
+}
+
+/* make scrollbar disappear */
+::-webkit-scrollbar {
+  display: none;
 }

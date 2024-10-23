@@ -44,7 +44,7 @@ class UserController {
       user.otp = otp;
       await user.save();
       let mailOptions = {
-        from: `One-Hub <support>`,
+        from: `RailCart <${process.env.MAIL}>`,
         to: email,
         subject: "OTP for Verification",
         text: `Your OTP for verification is: ${otp}`,
@@ -77,7 +77,7 @@ class UserController {
       const { email, password } = req.body;
       const user = await User.findOne({ email });
       if (!user) return res.status(404).json({ message: "User does not exist!" });
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = bcrypt.compare(password, user.password);
       if (!isMatch) return res.status(400).json({ message: "Incorrect Password!" });
       this.sendEmail(email);
       res.status(200).json({ message: "success" });

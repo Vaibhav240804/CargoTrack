@@ -17,9 +17,9 @@ const Home = () => {
         backgroundPosition: "center",
 
       }}
-      className="w-screen h-screen my-2 mx-auto max-w-7xl px-4 text-char flex items-start justify-between gap-4"
+      className="w-screen h-screen my-2 mx-auto text-char flex items-start justify-between gap-4"
     >
-      <div className="mt-16 flex flex-col items-start justify-between gap-8 md:px-8">
+      <div className="mt-16 w-full flex flex-col items-start justify-between gap-8 md:px-8">
         <div className="flex flex-col gap-2">
           <Center>
             <div className="w-full flex text-white items-center gap-4 font-bold text-6xl">
@@ -55,37 +55,6 @@ const Home = () => {
         </div>
       </div>
     </section>
-  );
-};
-
-const FloatingPhone = () => {
-  return (
-    <div
-      style={{
-        transformStyle: "preserve-3d",
-        transform: "rotateY(-30deg) rotateX(15deg)",
-      }}
-      className="rounded-[24px] bg-[#33006F]"
-    >
-      <motion.div
-        initial={{
-          transform: "translateZ(8px) translateY(-2px)",
-        }}
-        animate={{
-          transform: "translateZ(32px) translateY(-8px)",
-        }}
-        transition={{
-          repeat: Infinity,
-          repeatType: "mirror",
-          duration: 2,
-          ease: "easeInOut",
-        }}
-        className="relative h-96 w-56 rounded-[24px] border-2 border-b-4 border-r-4 border-white border-l-[#E5E7EB] border-t-[#E5E7EB] bg-[#33006F] p-1 pl-[3px] pt-[3px]"
-      >
-        <HeaderBar />
-        <Screen />
-      </motion.div>
-    </div>
   );
 };
 
