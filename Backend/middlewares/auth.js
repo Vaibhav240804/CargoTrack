@@ -12,7 +12,6 @@ const auth = (req, res, next) => {
       token = token.split(" ")[1];
       let user = jwt.verify(token, SECRET_KEY);
       req.userID = user.uid;
-
     } else {
       return res.status(401).json({ message: "Unauthorized User" });
     }

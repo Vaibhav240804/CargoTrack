@@ -15,6 +15,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Booking from "./pages/Booking";
 import "./App.css";
 import { AbcOutlined } from "@mui/icons-material";
+import { AdminDash } from "./pages/AdminDash";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -81,6 +82,10 @@ function App() {
         {
           path: "/booking",
           element: <Booking />,
+        },
+        {
+          path: "/adminDash",
+          element: <AdminDash />,
         },
       ],
     },
