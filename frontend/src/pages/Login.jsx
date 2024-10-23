@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import * as Components from '../components/login/Components';
 import TextField from '@mui/material/TextField';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -81,8 +79,7 @@ function Login() {
                 toggle(true);
             })
             .catch((err) => {
-                console.log(err)
-                // console.log(err.response)
+                console.log(err);
                 toast.error(err.response.data.message);
                 setBtnName('Log In');
             })

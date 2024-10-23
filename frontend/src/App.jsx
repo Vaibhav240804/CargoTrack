@@ -14,6 +14,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Booking from "./pages/Booking";
 import "./App.css";
+import { AbcOutlined } from "@mui/icons-material";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -47,7 +48,7 @@ function App() {
                   <StaggeredDropDown />
                 </div>
               )}
-              {token && <Footer />}
+              <Footer />
             </>
           )}
         </>
@@ -58,17 +59,29 @@ function App() {
           element: <Login />,
         },
         {
+          path: "/adminlogin",
+          element: <Login />,
+        },
+        {
+          path: "/home",
+          element: <Home />,
+        },
+        {
           path: "/",
           element: <Home />,
+        },
+        {
+          path: "/aboutus",
+          element: <AbcOutlined />,
         },
         {
           path: "/chatbot",
           element: <Chatbot />,
         },
         {
-          path:'/booking',
-          element:<Booking/>
-        }
+          path: "/booking",
+          element: <Booking />,
+        },
       ],
     },
   ]);
