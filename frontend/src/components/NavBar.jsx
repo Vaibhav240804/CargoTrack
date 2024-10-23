@@ -1,28 +1,39 @@
-import { Fragment, useEffect } from 'react'
-import { useState } from 'react'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import logo from '../assets/logo-hck.svg'
+import { Fragment, useEffect } from "react";
+import { useState } from "react";
+import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import logo from "../assets/logo-hck.svg";
 
 const navigation = [
-    { name: 'Home', href: '/home', current: false },
-    { name: 'Dashboard', href: '/dashboard', current: false },
-    // { name: 'ChatBot', href: '/chatbot', current: false },
-]
+  { name: "Home", href: "/", current: false },
+  { name: "Booking", href: "/Booking", current: false },
+  { name: "About us", href: "/aboutus", current: false },
+];
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(" ");
 }
 
 function NavBar() {
-    const [path, setPath] = useState(window.location.pathname)
+  const [path, setPath] = useState(window.location.pathname);
+  const [active, setActive] = useState(false);
 
-    useEffect(() => {
-        setPath(window.location.pathname)
-    }, [window.location.pathname])
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      setActive(true);
+    }
+
+    return () => {
+      setActive(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    setPath(window.location.pathname);
+  }, [window.location.pathname]);
 
   return (
-    <Disclosure as="nav" className="bg-[#33006F] sticky top-0 z-[999] ">
+    <Disclosure as="nav" className="bg-[#08103b] sticky top-0 z-[999] ">
       {({ open }) => (
         <>
           <div className="mx-auto px-2 sm:px-6 lg:px-16">
@@ -41,14 +52,9 @@ function NavBar() {
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <img
-                    className="h-8 w-auto"
-                    src={logo}
-                    // src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                    alt="Your Company"
-                  />
+                  <img className="h-8 w-auto" src={logo} alt="company" />
                   <span className="font-bold text-white  tracking-wide ml-2 text-xl">
-                    AmazeView
+                    RailCart
                   </span>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
@@ -90,7 +96,6 @@ function NavBar() {
                       <img
                         className="h-8 w-8 rounded-full"
                         src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                        // src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                         alt=""
                       />
                     </Menu.Button>
@@ -105,17 +110,47 @@ function NavBar() {
                     leaveTo="transform opacity-0 scale-95"
                   >
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      {/* <Menu.Item>
-                        {({ active }) => (
-                          <a
-                            href="/profile"
-                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                          >
-                            Your Profile
-                          </a>
-                        )}
-                      </Menu.Item> */}
                       <Menu.Item>
+                        <>
+                          {active ? (
+                            <>
+                              <a
+                                href="/profile"
+                                className={classNames(
+                                  active ? "bg-gray-100" : "",
+                                  "block px-4 py-2 text-sm text-gray-700"
+                                )}
+                              >
+                                Your Profile
+                              </a>
+                              <a
+                                onClick={() => {
+                                  localStorage.clear();
+                                  window.location.href = "/login";
+                                }}
+                                className={classNames(
+                                  active ? "bg-gray-100" : "",
+                                  "block px-4 py-2 text-sm text-gray-700 cursor-pointer"
+                                )}
+                              >
+                                Sign out
+                              </a>
+                            </>
+                          ) : (
+                            <a
+                              href="/login"
+                              className={classNames(
+                                active ? "bg-gray-100" : "",
+                                "block px-4 py-2 text-sm text-gray-700"
+                              )}
+                            >
+                              Log in
+                            </a>
+                          )}
+                        </>
+                      </Menu.Item>
+
+                      {/* <Menu.Item>
                         {({ active }) => (
                           <a
                             onClick={() => {
@@ -130,7 +165,7 @@ function NavBar() {
                             Sign out
                           </a>
                         )}
-                      </Menu.Item>
+                      </Menu.Item> */}
                     </Menu.Items>
                   </Transition>
                 </Menu>
@@ -164,4 +199,4 @@ function NavBar() {
   );
 }
 
-export default NavBar
+export default NavBar;

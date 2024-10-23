@@ -4,9 +4,6 @@ import Center from "../animated-components/Center";
 import Star from "../components/dashboard/Star";
 import Sva from "../components/dashboard/Sva";
 import LDA from "../components/dashboard/LDA";
-import Aspect from "../components/dashboard/Aspect";
-import Keyword from "../components/dashboard/Keyword";
-import Sentiment from "../components/dashboard/Sentiment";
 import TextField from "@mui/material/TextField";
 import { Spin as Hamburger } from "hamburger-react";
 import Box from "@mui/material/Box";
@@ -83,7 +80,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   // const [data, setData] = useState();
   const [state, setState] = useState(false);
-  // const prod = useSelector((state) => state.user.currProd);
+  const prod = useSelector((state) => state.user.currProd);
   // const [loadingLink, setLoadingLink] = useState(false);
   // const [loadingText, setLoadingText] = useState("Fetching Data");
 
@@ -140,69 +137,8 @@ const Dashboard = () => {
     setState(open);
   };
 
-  const list = (data) => (
-    <Box
-      sx={{ width: 300, marginTop: 8 }}
-      role="presentation"
-      onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
-    >
-      <div className="fixed top-4 left-[230px]">
-        <IconButton>
-          <Hamburger
-            size={30}
-            color="black"
-            toggled={state}
-            toggle={setState}
-          />
-        </IconButton>
-      </div>
-      <div className="mt-2 text-2xl font-bold w-full text-center mb-2">
-        Previous Searches
-      </div>
-      <Divider />
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton
-            onClick={() => {
-              dispatch(setCurrProd(null));
-            }}
-          >
-            <ListItemIcon>{<AddIcon />}</ListItemIcon>
-            <ListItemText primary={"New Product"} />
-          </ListItemButton>
-        </ListItem>
-        {data?.map((text, index) => (
-          <ListItem key={text._id} disablePadding>
-            <ListItemButton
-              onClick={() => {
-                dispatch(setCurrProd(text));
-              }}
-            >
-              <ListItemText primary={text.name} secondary={text.date} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  );
-
   return (
-    <>
-      {loading ? (
-        <Center>
-          <div className="w-full h-screen">
-            <CircularProgress
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
-            />
-          </div>
-        </Center>
-      ) : (
+    
         <Center>
           <div className="w-full h-full p-4 flex flex-col items-start gap-4">
             <div className="fixed">
@@ -215,9 +151,6 @@ const Dashboard = () => {
                 />
               </IconButton> */}
             </div>
-            <Drawer anchor={"left"} open={state} onClose={toggleDrawer(false)}>
-              {list(data)}
-            </Drawer>
             <>
               {!prod ? (
                 <>
@@ -247,27 +180,7 @@ const Dashboard = () => {
                       </IconButton>
                     </div>
                   </div>
-                  <>
-                    {loadingLink ? (
-                      <div className="w-full h-[31.5vh] text-center text-xl font-bold mt-16 flex flex-col items-center gap-2">
-                        <CircularProgress />
-                        <span className="font-bold text-2xl text-black">
-                          Fetching Data...
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="w-full h-[31.5vh] flex flex-col items-center text-center text-xl font-bold mt-16">
-                        <div>Please Enter an Amazon URL to get started</div>
-                        <div>
-                          <img
-                            src="https://m.media-amazon.com/images/G/01/sp-marketing-toolkit/guides/design/photography/studio/Retail_Box-triple_angle-v3-sm.png"
-                            alt=""
-                            className="w-[40%]"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </>
+                 
                   <button></button>
                 </>
               ) : (
@@ -284,86 +197,13 @@ const Dashboard = () => {
                         }}
                       />
                     </div>
-                    <div className="w-[60%] flex flex-col items-start justify-normal gap-1 text-justify">
-                      <span className="font-bold text-black text-center">
-                        {prod.name}
-                      </span>
-                      <span className="font-bold text-black text-opacity-65 text-xs">
-                        {prod.description}
-                      </span>
-                    </div>
-                    <div className="w-[15%] flex flex-col items-center justify-center gap-2 text-justify">
-                      <span className="font-bold text-2xl tracking-wide">
-                        {prod.price}
-                      </span>
-                      <span className="font-semibold text-sm text-black text-opacity-40">
-                        {prod.date}
-                      </span>
-                      <span
-                        className="text-xs text-blue-600 hover:underline cursor-pointer"
-                        onClick={() => {
-                          window.open(prod.url);
-                        }}
-                      >
-                        View on Amazon
-                      </span>
-                      <span>
-                        <StyledRating
-                          name="highlight-selected-only"
-                          // calc the average rating of product
-                          readOnly
-                          value={prod.avgRating}
-                          IconContainerComponent={IconContainer}
-                          getLabelText={(value) => customIcons[value].label}
-                          highlightSelectedOnly
-                        />
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center gap-4">
-                    <div className="">
-                      <h2>Sentiment</h2>
-                      <div className="p-2 bg-white shadow-md rounded-xl">
-                        <Sentiment data={prod} />
-                      </div>
-                    </div>
-                    <div>
-                      <h2>Star Ratings Distribution</h2>
-                      <div className="p-2 bg-white shadow-md rounded-xl">
-                        <Star data={prod} />
-                      </div>
-                    </div>
-                    <div className="">
-                      <h2>Keywords</h2>
-                      <div className="p-2 bg-white shadow-md rounded-xl">
-                        <Keyword data={prod} />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center gap-4">
-                    <div>
-                      <h2>Aspect Based Sentimental Analysis</h2>
-                      <div className="p-2 bg-white shadow-md rounded-xl">
-                        <Aspect data={prod} />
-                      </div>
-                    </div>
-                    {/* <div>
-                      <h2>LDA</h2>
-                      <div className="p-2 bg-white shadow-md rounded-xl">
-                        <ChartComponent />
-                      </div>
-                    </div> */}
-                  </div>
-                  <div className="flex items-center justify-center gap-4 w-full">
-                    <SeasonalVariationChart />
                   </div>
                 </div>
               )}
             </>
           </div>
         </Center>
-      )}
-    </>
+    
   );
 };
 
