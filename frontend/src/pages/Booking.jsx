@@ -94,7 +94,41 @@ const Bookings = () => {
                   fullWidth
                 />
 
-                {/* Parcel Description */}
+                {/* Dimension Fields: Height, Width, Breadth (Each field takes full width of a column) */}
+                <div className="flex flex-wrap gap-4">
+                  <TextField
+                    label="Height of the Parcel"
+                    variant="outlined"
+                    InputLabelProps={{ style: { color: "#FFF" } }}
+                    InputProps={{
+                      style: { color: "#FFF", borderColor: "#FFF" },
+                    }}
+                    className="bg-[#1E2247] border border-white"
+                    fullWidth
+                  />
+                  <TextField
+                    label="Width of the Parcel"
+                    variant="outlined"
+                    InputLabelProps={{ style: { color: "#FFF" } }}
+                    InputProps={{
+                      style: { color: "#FFF", borderColor: "#FFF" },
+                    }}
+                    className="bg-[#1E2247] border border-white"
+                    fullWidth
+                  />
+                  <TextField
+                    label="Breadth of the Parcel"
+                    variant="outlined"
+                    InputLabelProps={{ style: { color: "#FFF" } }}
+                    InputProps={{
+                      style: { color: "#FFF", borderColor: "#FFF" },
+                    }}
+                    className="bg-[#1E2247] border border-white"
+                    fullWidth
+                  />
+                </div>
+
+                {/* Parcel Description Field - This occupies the entire next row */}
                 <TextField
                   label="Parcel Description"
                   variant="outlined"
@@ -104,6 +138,8 @@ const Bookings = () => {
                   }}
                   className="bg-[#1E2247] border border-white"
                   rows={4}
+                  multiline
+                  fullWidth
                 />
               </form>
             </Right>
