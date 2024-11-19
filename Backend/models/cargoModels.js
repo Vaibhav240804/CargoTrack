@@ -98,6 +98,16 @@ containerSchema.methods.checkAvailableSpace = function (parcel) {
   return availableSpace >= parcelVolume; 
 };
 
+containerSchema.methods.percentageUsed = function () {
+  const currentUsedSpace = this.cargoItems.reduce(
+    (acc, cargoItem) =>
+      acc + cargoItem.calculateVolume ? cargoItem.calculateVolume() : 0,
+    0
+  );
+  const totalVolume = this.calculateVolume();
+  return (currentUsedSpace / totalVolume) * 100;
+};
+
 
 containerSchema.methods.isSameRoute = function () {
   return this.from === this.to;
