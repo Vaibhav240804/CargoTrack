@@ -64,16 +64,30 @@ containerSchema.methods.calculateVolume = function () {
 };
 
 // Method to check available space in the container
-containerSchema.methods.checkAvailableSpace = function (item) {
+// containerSchema.methods.checkAvailableSpace = function (item) {
+//   const currentUsedSpace = this.cargoItems.reduce(
+//     (acc, cargoItem) => acc + cargoItem.calculateVolume(),
+//     0
+//   );
+//   const totalVolume = this.calculateVolume();
+//   const availableSpace = totalVolume - currentUsedSpace;
+
+//   return availableSpace >= item.calculateVolume(); // Return true if there's enough space for the item
+// };
+
+containerSchema.methods.checkAvailableSpace = function (parcel) {
   const currentUsedSpace = this.cargoItems.reduce(
     (acc, cargoItem) => acc + cargoItem.calculateVolume(),
     0
   );
   const totalVolume = this.calculateVolume();
+  const parcelVolume = parcel.height * parcel.width * parcel.breadth;
   const availableSpace = totalVolume - currentUsedSpace;
 
-  return availableSpace >= item.calculateVolume(); // Return true if there's enough space for the item
+  return availableSpace >= parcelVolume; // True if there's enough space
 };
+
+
 
 const adminSchema = new mongoose.Schema({
   name: {

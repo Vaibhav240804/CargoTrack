@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { TextField, Button } from "@mui/material";
 import {
   EmailOutlined,
@@ -9,8 +11,43 @@ import Left from "../animated-components/Left";
 import Right from "../animated-components/Right";
 import Center from "../animated-components/Center";
 import DCenter from "../animated-components/DCenter";
+import Api from "../api/index.js";
 
 const Bookings = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    from: "",
+    to: "",
+    height: "",
+    width: "",
+    breadth: "",
+    description: "",
+  });
+  const navigate = useNavigate();
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  // Submit form data
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await Api.bookCargo(formData); // Ensure this calls the appropriate API
+      if (response.data.proceedToPayment) {
+        toast.success("Space available. Proceeding to payment.");
+        navigate("/payment"); // Adjust to the actual payment route
+      } else {
+        toast.error("No space available for the specified dimensions.");
+      }
+    } catch (error) {
+      toast.error(error.response?.data.message || "Booking failed. Try again.");
+    }
+  };
+
   return (
     <div className="bg-[#0e1b4d] text-white min-h-screen flex flex-col items-center justify-center">
       <div className="container mx-auto p-10">
