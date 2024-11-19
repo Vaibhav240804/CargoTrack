@@ -32,8 +32,6 @@ export const ContainerForm = ({ adminId, onContainerAdded }) => {
     } catch (error) {
       console.error("Error adding container", error);
       toast.error(error.response?.data?.message || "Error adding container");
-
-      toast.success("Container added successfully!");
       onContainerAdded();
       setFormData({
         length: "",
