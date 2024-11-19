@@ -12,7 +12,7 @@ const Payment = () => {
       const response = await Api.makePayment(bookingId);
       if (response.status === 200) {
         setPaymentStatus("Payment Successful!");
-        toast.success("Payment Successful!");
+        toast.success(response.data.message);
         redirect("/profile");
       }
       else{

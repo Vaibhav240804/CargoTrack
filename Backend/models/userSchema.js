@@ -14,7 +14,7 @@ const bookingSchema = new mongoose.Schema({
   cost: { type: Number, required: true },
   destinedContainer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "containers",
+    ref: "Container",
     required: false,
   },
 });
@@ -29,11 +29,16 @@ const userSchema = new mongoose.Schema({
   phone: { type: Number },
   password: { type: String },
   otp: { type: String },
-  bookings: [bookingSchema], // New field to store booking details
+  bookings: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "bookings",
+      default: [],
+    },
+  ],
 });
 
 const User = mongoose.model("cres_user", userSchema);
 const Booking = mongoose.model("bookings", bookingSchema);
-
 export default User;
-export { Booking };
+export { User, Booking };

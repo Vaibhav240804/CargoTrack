@@ -67,11 +67,17 @@ const containerSchema = new mongoose.Schema({
     required: true,
     enum: cities, // Add enum using city list
   },
-  cost:{
+  cost: {
     type: Number,
     required: true,
   },
-  cargoItems: [], // Array of cargo items
+  cargoItems: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CargoItem", 
+      default: [],
+    },
+  ],
 });
 
 // Method to calculate the volume of the container
@@ -86,7 +92,7 @@ containerSchema.methods.checkAvailableSpace = function (parcel) {
     0
   );
   const totalVolume = this.calculateVolume();
-  const parcelVolume = parcel.height * parcel.width * parcel.breadth;
+  const parcelVolume = parcel.height * parcel.length * parcel.breadth;
   const availableSpace = totalVolume - currentUsedSpace;
 
   return availableSpace >= parcelVolume; // True if there's enough space
@@ -119,7 +125,13 @@ const adminSchema = new mongoose.Schema({
   otp: {
     type: String,
   },
-  containers: [containerSchema], // Array of containers
+  containers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Container",
+      default: [],
+    },
+  ],
 });
 
 const Admin = mongoose.model("Admin", adminSchema);
