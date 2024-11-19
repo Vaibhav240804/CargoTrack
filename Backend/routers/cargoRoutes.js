@@ -7,6 +7,7 @@ import {
 } from "../controllers/cargoController.js";
 import {
   createBooking,
+  getBookings,
   makePayment,
 } from "../controllers/bookingController.js";
 import userController from "../controllers/userController.js";
@@ -22,5 +23,6 @@ router.post("/admin/container/item", addItemToContainer);
 router.get("/admin/:adminId/containers", getContainers);
 router.post("/booking", auth, createBooking);
 router.post("/booking/payment", makePayment);
+router.get("/booking", auth, getBookings);
 
 export default router;

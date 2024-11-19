@@ -18,6 +18,7 @@ import { AbcOutlined } from "@mui/icons-material";
 import { AdminDash } from "./pages/AdminDash";
 import AdminLogin from "./pages/AdminLogin";
 import Payment from "./pages/Payment";
+import Profile from "./pages/Profile";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -57,6 +58,10 @@ function App() {
         </>
       ),
       children: [
+        {
+          path:"/profile",
+          element: <Profile/>
+        },
         {
           path: "/login",
           element: <Login />,

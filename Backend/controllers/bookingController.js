@@ -18,7 +18,26 @@ export const createBooking = async (req, res) => {
         .json({ message: "No container available for the specified route." });
     }
 
-    const parcel = { height, length: width, breadth }; // Match schema terms
+    const parcel = { height, length: width, breadth };
+
+    const maxParcelDimension = Math.max(
+      parcel.height,
+      parcel.length,
+      parcel.breadth
+    );
+    const maxContainerDimension = Math.max(
+      container.height,
+      container.length,
+      container.breadth
+    );
+
+    if (maxParcelDimension > maxContainerDimension) {
+      return res.status(400).json({
+        message: "Parcel dimensions exceed container dimensions.",
+        proceedToPayment: false,
+      });
+    }
+
     if (!container.checkAvailableSpace(parcel)) {
       return res.status(400).json({
         message: "Not enough space to accommodate the parcel.",
@@ -33,7 +52,7 @@ export const createBooking = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
-    
+
     if (!user.bookings) {
       user.bookings = [];
     }
@@ -68,10 +87,11 @@ export const createBooking = async (req, res) => {
 };
 
 export const getBookings = async (req, res) => {
-  const { email } = req.body;
+  const { userID } = req.body;
 
+  console.log(req.body);
   try {
-    const user = await User.findOne({ email }).populate("bookings");
+    const user = await User.findById(userID).populate("bookings");
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
@@ -120,6 +140,10 @@ export const makePayment = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Not enough space in the container." });
+    }
+
+    if (bookingDoc.isPaid) {
+      return res.status(400).json({ message: "Booking already paid for." });
     }
 
     bookingDoc.isPaid = true;

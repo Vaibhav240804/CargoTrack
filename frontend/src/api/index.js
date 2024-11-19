@@ -110,7 +110,6 @@ class Api {
     }
   }
 
-  // Get list of containers for a given admin ID
   static async getContainers(id) {
     try {
       const response = await api.get(`api/cargo/admin/${id}/containers`);
@@ -143,6 +142,21 @@ class Api {
     }
   }
 
+  static async getBookings(data) {
+    const Token = localStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/cargo/booking`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Token}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   static async makePayment(bookingId) {
     // get token from local storage
     const Token = localStorage.getItem("token");
@@ -161,7 +175,11 @@ class Api {
       );
       return response;
     } catch (error) {
-      throw error;
+      if (error.response.status === 400) {
+        throw new Error("Booking already paid for.");
+      } else {
+        throw error;
+      }
     }
   }
 }

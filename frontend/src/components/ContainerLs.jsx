@@ -1,8 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ContainerDetails } from "./ContainerDetail";
-import { Card, CardContent, Typography, Grid, Box } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Box,
+  LinearProgress,
+} from "@mui/material";
 
 export const ContainerLs = ({ containers }) => {
+  const [spacePercentage, setSpacePercentage] = useState([]);
+
+  useEffect(() => {
+    const getSpacePercentage = () => {
+      const percentage = containers.map((container) => {
+        const totalSpace =
+          container.length * container.breadth * container.height;
+        const filledSpace = container.cargoItems.reduce((acc, item) => {
+          return acc + item.length * item.breadth * item.height;
+        }, 0);
+        return (filledSpace / totalSpace) * 100;
+      });
+      setSpacePercentage(percentage);
+    };
+    getSpacePercentage();
+  }, [containers]);
+
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
@@ -14,7 +38,7 @@ export const ContainerLs = ({ containers }) => {
         </Typography>
       ) : (
         <Grid container spacing={3}>
-          {containers.map((container) => (
+          {containers.map((container, index) => (
             <Grid item xs={12} sm={6} md={4} key={container._id}>
               <Card
                 variant="outlined"
@@ -46,6 +70,21 @@ export const ContainerLs = ({ containers }) => {
                     <strong>Available Until:</strong>{" "}
                     {new Date(container.availableUntil).toLocaleDateString()}
                   </Typography>
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2" gutterBottom>
+                      <strong>Space Utilization:</strong>{" "}
+                      {spacePercentage[index]?.toFixed(2) || 0}%
+                    </Typography>
+                    <LinearProgress
+                      variant="determinate"
+                      value={spacePercentage[index] || 0}
+                      sx={{
+                        height: 8,
+                        borderRadius: 4,
+                        backgroundColor: "#f0f0f0",
+                      }}
+                    />
+                  </Box>
                   <ContainerDetails container={container} />
                 </CardContent>
               </Card>

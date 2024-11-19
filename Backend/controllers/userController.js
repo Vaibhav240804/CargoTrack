@@ -132,7 +132,6 @@ class UserController {
     }
   };
 
-  // verify otp
   verifyOtp = async (req, res) => {
     try {
       const { email, otp } = req.body;
@@ -144,6 +143,7 @@ class UserController {
             id: user._id,
             email: user.email,
             name: user.name,
+            isAdmin: false,
           },
           secretKey,
           { expiresIn: "12h" }
@@ -183,6 +183,7 @@ class UserController {
         {
           id: user._id,
           email: user.email,
+          name: user.name,
           isAdmin: false,
         },
         secretKey,
@@ -201,7 +202,16 @@ class UserController {
       const user = await User.findOne({ email });
       if (!user)
         return res.status(404).json({ message: "User does not exist!" });
-      res.status(200).json({ message: "success", products: user.products });
+      res.status(200).json({ message: "success", 
+        user:{
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          bookings: user.bookings,
+        
+        }
+
+       });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal Server Error" });
