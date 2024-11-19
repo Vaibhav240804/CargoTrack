@@ -17,6 +17,7 @@ import "./App.css";
 import { AbcOutlined } from "@mui/icons-material";
 import { AdminDash } from "./pages/AdminDash";
 import AdminLogin from "./pages/AdminLogin";
+import Payment from "./pages/Payment";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -59,6 +60,10 @@ function App() {
         {
           path: "/login",
           element: <Login />,
+        },
+        {
+          path: "/payment/:bookingId",
+          element: <Payment />,
         },
         {
           path: "/adminlogin",

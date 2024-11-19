@@ -57,9 +57,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import init from "./db/config.js";
 import uR from "./routers/userRouter.js";
-import cargoRoutes from "./routers/cargoRoutes.js"; 
-import bookingRoutes from './routers/bookingRoutes.js';
-
+import cargoRoutes from "./routers/cargoRoutes.js";
 
 dotenv.config();
 
@@ -84,9 +82,7 @@ bR.get("/", (req, res) => {
 
 // Routes /api/{route}
 bR.use("/user", uR);
-bR.use("/cargo", cargoRoutes); // Add the cargo routes
-bR.use('/booking', bookingRoutes);
-
+bR.use("/cargo", cargoRoutes); 
 // start server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {

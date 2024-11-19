@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { TextField, Button } from "@mui/material";
@@ -14,6 +14,17 @@ import DCenter from "../animated-components/DCenter";
 import Api from "../api/index.js";
 
 const Bookings = () => {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const ifuser = JSON.parse(localStorage.getItem("user"));
+    if (!ifuser) {
+      toast.error("Please login to book cargo.");
+      navigate("/login");
+    }
+    setUser(ifuser);
+    setFormData({ ...formData, email: ifuser.email });
+  }, []);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,21 +36,21 @@ const Bookings = () => {
     description: "",
   });
   const navigate = useNavigate();
+  const [message, setMessage] = useState("Click to check availability");
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Submit form data
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await Api.bookCargo(formData); // Ensure this calls the appropriate API
+      const response = await Api.bookCargo(formData);
       if (response.data.proceedToPayment) {
-        toast.success("Space available. Proceeding to payment.");
-        navigate("/payment"); // Adjust to the actual payment route
+        toast.success(response.data.message);
+        setMessage("Redirecting to payment...");
+        navigate(`/payment/${response.data.bookingID}`);
       } else {
         toast.error("No space available for the specified dimensions.");
       }
@@ -87,29 +98,10 @@ const Bookings = () => {
 
           <div className="w-full lg:w-2/3 mt-8 lg:mt-0 lg:pl-10">
             <Right>
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
-                  label="Your Name"
-                  variant="outlined"
-                  InputLabelProps={{ style: { color: "#FFF" } }}
-                  InputProps={{
-                    style: { color: "#FFF", borderColor: "#FFF" },
-                  }}
-                  className="bg-[#1E2247] border border-white"
-                  fullWidth
-                />
-                <TextField
-                  label="Email"
-                  variant="outlined"
-                  InputLabelProps={{ style: { color: "#FFF" } }}
-                  InputProps={{
-                    style: { color: "#FFF", borderColor: "#FFF" },
-                  }}
-                  className="bg-[#1E2247] border border-white"
-                  fullWidth
-                />
-
-                {/* From and To */}
+              <form
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                onSubmit={handleSubmit}
+              >
                 <TextField
                   label="From"
                   variant="outlined"
@@ -119,6 +111,8 @@ const Bookings = () => {
                   }}
                   className="bg-[#1E2247] border border-white"
                   fullWidth
+                  name="from"
+                  onChange={handleInputChange}
                 />
                 <TextField
                   label="To"
@@ -129,19 +123,24 @@ const Bookings = () => {
                   }}
                   className="bg-[#1E2247] border border-white"
                   fullWidth
+                  name="to"
+                  onChange={handleInputChange}
                 />
 
-                {/* Dimension Fields: Height, Width, Breadth (Each field takes full width of a column) */}
                 <div className="flex flex-wrap gap-4">
                   <TextField
+                    inputProps={{
+                      inputMode: "numeric",
+                      pattern: "[0-9]*",
+                      style: { color: "#FFF", borderColor: "#FFF" },
+                    }}
                     label="Height of the Parcel"
                     variant="outlined"
                     InputLabelProps={{ style: { color: "#FFF" } }}
-                    InputProps={{
-                      style: { color: "#FFF", borderColor: "#FFF" },
-                    }}
                     className="bg-[#1E2247] border border-white"
                     fullWidth
+                    name="height"
+                    onChange={handleInputChange}
                   />
                   <TextField
                     label="Width of the Parcel"
@@ -149,23 +148,30 @@ const Bookings = () => {
                     InputLabelProps={{ style: { color: "#FFF" } }}
                     InputProps={{
                       style: { color: "#FFF", borderColor: "#FFF" },
+                      inputMode: "numeric",
+                      pattern: "[0-9]*",
                     }}
                     className="bg-[#1E2247] border border-white"
                     fullWidth
+                    name="width"
+                    onChange={handleInputChange}
                   />
                   <TextField
                     label="Breadth of the Parcel"
                     variant="outlined"
                     InputLabelProps={{ style: { color: "#FFF" } }}
                     InputProps={{
+                      inputMode: "numeric",
+                      pattern: "[0-9]*",
                       style: { color: "#FFF", borderColor: "#FFF" },
                     }}
                     className="bg-[#1E2247] border border-white"
                     fullWidth
+                    name="breadth"
+                    onChange={handleInputChange}
                   />
                 </div>
 
-                {/* Parcel Description Field - This occupies the entire next row */}
                 <TextField
                   label="Parcel Description"
                   variant="outlined"
@@ -174,21 +180,23 @@ const Bookings = () => {
                     style: { color: "#FFF", borderColor: "#FFF" },
                   }}
                   className="bg-[#1E2247] border border-white"
-                  rows={4}
+                  rows={7}
                   multiline
                   fullWidth
+                  name="description"
+                  onChange={handleInputChange}
                 />
               </form>
             </Right>
 
-            {/* Submit Button */}
             <div className="mt-6">
               <Left>
                 <Button
                   variant="contained"
                   className="bg-[#f4b41a] text-white px-8 py-3"
+                  onClick={handleSubmit}
                 >
-                  Submit Message
+                  {message}
                 </Button>
               </Left>
             </div>

@@ -1,5 +1,4 @@
-import { Admin, CargoItem, Container } from '../models/cargoModels.js';
-
+import { Admin, CargoItem, Container } from "../models/cargoModels.js";
 
 export const addContainer = async (req, res) => {
   const { adminId, containerData } = req.body;
@@ -8,6 +7,7 @@ export const addContainer = async (req, res) => {
     if (!admin) return res.status(404).json({ message: "Admin not found" });
 
     const newContainer = new Container(containerData);
+    newContainer.save();
     admin.containers.push(newContainer);
     await admin.save();
     res.status(201).json(newContainer);
@@ -28,7 +28,9 @@ export const addItemToContainer = async (req, res) => {
       await admin.save();
       res.status(201).json(userItem);
     } else {
-      res.status(400).json({ message: "Not enough space in the container for the item." });
+      res
+        .status(400)
+        .json({ message: "Not enough space in the container for the item." });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -38,7 +40,9 @@ export const addItemToContainer = async (req, res) => {
 export const getContainers = async (req, res) => {
   const { adminId } = req.params;
   try {
-    const admin = await Admin.findById(adminId).populate('containers.cargoItems');
+    const admin = await Admin.findById(adminId).populate(
+      "containers.cargoItems"
+    );
     if (!admin) return res.status(404).json({ message: "Admin not found" });
     res.status(200).json(admin.containers);
   } catch (error) {

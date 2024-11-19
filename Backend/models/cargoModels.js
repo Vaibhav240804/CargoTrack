@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import cities from "../data/cities.json" assert { type: "json" };
 
 // Schema for a cargo item
 const cargoItemSchema = new mongoose.Schema({
@@ -18,8 +19,17 @@ const cargoItemSchema = new mongoose.Schema({
     type: Number,
     required: true, // Height of the item
   },
+  from: {
+    type: String,
+    required: true,
+    enum: cities, // Ensures from city is valid
+  },
+  to: {
+    type: String,
+    required: true,
+    enum: cities, // Ensures to city is valid
+  },
 });
-
 // Method to calculate the volume of the cargo item
 cargoItemSchema.methods.calculateVolume = function () {
   return this.length * this.breadth * this.height; // Volume in cubic units
@@ -47,15 +57,21 @@ const containerSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  from:{
+  from: {
     type: String,
     required: true,
+    enum: cities, // Add enum using city list
   },
-  to:{
+  to: {
     type: String,
-    required: true
+    required: true,
+    enum: cities, // Add enum using city list
   },
-  cargoItems: [],
+  cost:{
+    type: Number,
+    required: true,
+  },
+  cargoItems: [], // Array of cargo items
 });
 
 // Method to calculate the volume of the container
@@ -64,17 +80,6 @@ containerSchema.methods.calculateVolume = function () {
 };
 
 // Method to check available space in the container
-// containerSchema.methods.checkAvailableSpace = function (item) {
-//   const currentUsedSpace = this.cargoItems.reduce(
-//     (acc, cargoItem) => acc + cargoItem.calculateVolume(),
-//     0
-//   );
-//   const totalVolume = this.calculateVolume();
-//   const availableSpace = totalVolume - currentUsedSpace;
-
-//   return availableSpace >= item.calculateVolume(); // Return true if there's enough space for the item
-// };
-
 containerSchema.methods.checkAvailableSpace = function (parcel) {
   const currentUsedSpace = this.cargoItems.reduce(
     (acc, cargoItem) => acc + cargoItem.calculateVolume(),
@@ -87,8 +92,12 @@ containerSchema.methods.checkAvailableSpace = function (parcel) {
   return availableSpace >= parcelVolume; // True if there's enough space
 };
 
+// Method to check if "from" and "to" fields are the same
+containerSchema.methods.isSameRoute = function () {
+  return this.from === this.to;
+};
 
-
+// Schema for an admin
 const adminSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -110,7 +119,7 @@ const adminSchema = new mongoose.Schema({
   otp: {
     type: String,
   },
-  containers: [containerSchema],
+  containers: [containerSchema], // Array of containers
 });
 
 const Admin = mongoose.model("Admin", adminSchema);

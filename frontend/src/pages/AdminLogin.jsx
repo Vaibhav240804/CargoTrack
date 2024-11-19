@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import VerifyOtp from "../components/login/VerifyOtp";
 import Api from "../api";
 
-export default  function AdminLogin() {
+export default function AdminLogin() {
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
   const [signupInfo, setSignupInfo] = useState({
     name: "",

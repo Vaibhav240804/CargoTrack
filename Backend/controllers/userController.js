@@ -6,6 +6,7 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
 import { Admin } from "../models/cargoModels.js";
+import cities from "../data/cities.json" assert { type: "json" };
 
 dotenv.config();
 
@@ -83,7 +84,7 @@ class UserController {
       const { email, password } = req.body;
       const user = await User.findOne({ email });
       if (!user)
-        return res.status(404).json({ message: "Admin does not exist!" });
+        return res.status(404).json({ message: "User does not exist!" });
       const isMatch = bcrypt.compare(password, user.password);
       if (!isMatch)
         return res.status(400).json({ message: "Incorrect Password!" });
@@ -119,7 +120,7 @@ class UserController {
       const { email, password } = req.body;
       const user = await Admin.findOne({ email });
       if (!user)
-        return res.status(404).json({ message: "User does not exist!" });
+        return res.status(404).json({ message: "Admin does not exist!" });
       const isMatch = bcrypt.compare(password, user.password);
       if (!isMatch)
         return res.status(400).json({ message: "Incorrect Password!" });
@@ -164,6 +165,8 @@ class UserController {
             {
               id: aduser._id,
               email: aduser.email,
+              isAdmin: true,
+              cities: cities,
             },
             secretKey,
             { expiresIn: "12h" }
@@ -180,6 +183,7 @@ class UserController {
         {
           id: user._id,
           email: user.email,
+          isAdmin: false,
         },
         secretKey,
         { expiresIn: "12h" }

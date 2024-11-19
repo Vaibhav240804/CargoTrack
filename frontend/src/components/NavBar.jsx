@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import logo from "../assets/logo-hck.svg";
-
 const navigation = [
   { name: "Home", href: "/", current: false },
   { name: "Booking", href: "/Booking", current: false },
@@ -17,10 +16,17 @@ function classNames(...classes) {
 function NavBar() {
   const [path, setPath] = useState(window.location.pathname);
   const [active, setActive] = useState(false);
+  const [admin, setAdmin] = useState(null);
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
       setActive(true);
+    }
+    if (localStorage.getItem("user")) {
+      // localStorage.setItem('user', JSON.stringify(decodedToken));
+      const user = JSON.parse(localStorage.getItem("user"));
+      setAdmin(user.isAdmin);
+      console.log(user.isAdmin);
     }
 
     return () => {
@@ -147,30 +153,25 @@ function NavBar() {
                               >
                                 Log in
                               </a>
-                              <a
-                                href="/adminlogin"
-                                className={classNames(
-                                  active ? "bg-gray-100" : "",
-                                  "block px-4 py-2 text-sm text-gray-700"
-                                )}
-                              >
-                                Admin Log in
-                              </a>
                             </>
                           )}
                         </>
                       </Menu.Item>
-                      <Menu.Item>
-                        <a
-                          href="/adminDash"
-                          className={classNames(
-                            active ? "bg-gray-100" : "",
-                            "block px-4 py-2 text-sm text-gray-700"
+                      {admin ? (
+                        <Menu.Item>
+                          {({ active }) => (
+                            <a
+                              href="/adminDash"
+                              className={classNames(
+                                active ? "bg-gray-100" : "",
+                                "block px-4 py-2 text-sm text-gray-700"
+                              )}
+                            >
+                              Admin Dashboard
+                            </a>
                           )}
-                        >
-                          Admin Panel
-                        </a>
-                      </Menu.Item>
+                        </Menu.Item>
+                      ) : null}
 
                       {/* <Menu.Item>
                         {({ active }) => (

@@ -143,7 +143,27 @@ class Api {
     }
   }
 
-
+  static async makePayment(bookingId) {
+    // get token from local storage
+    const Token = localStorage.getItem("token");
+    try {
+      const response = await api.post(
+        `/api/cargo/booking/payment`,
+        {
+          bookingId: bookingId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Token}`,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default Api;
