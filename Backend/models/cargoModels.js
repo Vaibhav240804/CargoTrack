@@ -85,25 +85,24 @@ containerSchema.methods.calculateVolume = function () {
   return this.length * this.breadth * this.height; // Volume in cubic units
 };
 
-// Method to check available space in the container
 containerSchema.methods.checkAvailableSpace = function (parcel) {
   const currentUsedSpace = this.cargoItems.reduce(
-    (acc, cargoItem) => acc + cargoItem.calculateVolume(),
+    (acc, cargoItem) =>
+      acc + cargoItem.calculateVolume ? cargoItem.calculateVolume() : 0,
     0
   );
   const totalVolume = this.calculateVolume();
   const parcelVolume = parcel.height * parcel.length * parcel.breadth;
   const availableSpace = totalVolume - currentUsedSpace;
 
-  return availableSpace >= parcelVolume; // True if there's enough space
+  return availableSpace >= parcelVolume; 
 };
 
-// Method to check if "from" and "to" fields are the same
+
 containerSchema.methods.isSameRoute = function () {
   return this.from === this.to;
 };
 
-// Schema for an admin
 const adminSchema = new mongoose.Schema({
   name: {
     type: String,
