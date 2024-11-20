@@ -29,13 +29,12 @@ const cargoItemSchema = new mongoose.Schema({
     required: true,
     enum: cities, // Ensures to city is valid
   },
-});
-// Method to calculate the volume of the cargo item
-cargoItemSchema.methods.calculateVolume = function () {
-  return this.length * this.breadth * this.height; // Volume in cubic units
-};
+}); 
 
-// Schema for a container
+cargoItemSchema.methods.calculateVolume = function () {
+  return this.length * this.breadth * this.height; 
+};
+ 
 const containerSchema = new mongoose.Schema({
   length: {
     type: Number,
@@ -80,22 +79,31 @@ const containerSchema = new mongoose.Schema({
   ],
 });
 
-// Method to calculate the volume of the container
 containerSchema.methods.calculateVolume = function () {
-  return this.length * this.breadth * this.height; // Volume in cubic units
+  return this.length * this.breadth * this.height; 
 };
 
-containerSchema.methods.checkAvailableSpace = function (parcel) {
-  const currentUsedSpace = this.cargoItems.reduce(
-    (acc, cargoItem) =>
-      acc + cargoItem.calculateVolume ? cargoItem.calculateVolume() : 0,
+containerSchema.methods.checkAvailableSpace = async function (parcel) {
+  const currentCargoItems = await CargoItem.find({ _id: { $in: this.cargoItems } });
+
+  let currentUsedSpace = currentCargoItems.reduce(
+    (acc, item) => acc + parseFloat(item.calculateVolume()),
     0
   );
-  const totalVolume = this.calculateVolume();
-  const parcelVolume = parcel.height * parcel.length * parcel.breadth;
-  const availableSpace = totalVolume - currentUsedSpace;
 
-  return availableSpace >= parcelVolume; 
+  let totalVolume = this.calculateVolume();
+  let parcelVolume = parseFloat(parcel.length) * parseFloat(parcel.breadth) * parseFloat(parcel.height);
+  
+  totalVolume = parseFloat(totalVolume);
+  currentUsedSpace = parseFloat(currentUsedSpace);
+  parcelVolume = parseFloat(parcelVolume);
+
+  console.log(totalVolume, currentUsedSpace, parcelVolume);
+  if(totalVolume === currentUsedSpace)
+      return false;
+  if(totalVolume < currentUsedSpace + parcelVolume)
+      return false;
+  return true;
 };
 
 containerSchema.methods.percentageUsed = function () {

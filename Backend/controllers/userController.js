@@ -8,6 +8,7 @@ import nodemailer from "nodemailer";
 import { Admin } from "../models/cargoModels.js";
 import cities from "../data/cities.json" assert { type: "json" };
 
+
 dotenv.config();
 
 class UserController {
@@ -185,10 +186,12 @@ class UserController {
           email: user.email,
           name: user.name,
           isAdmin: false,
+          cities: cities,
         },
         secretKey,
         { expiresIn: "12h" }
       );
+      console.log(cities.map(city => city.name));
       res.status(200).json({ message: "success", token });
     } catch (error) {
       console.log(error);
