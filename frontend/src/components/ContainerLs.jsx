@@ -70,6 +70,10 @@ export const ContainerLs = ({ containers }) => {
                     <strong>Available Until:</strong>{" "}
                     {new Date(container.availableUntil).toLocaleDateString()}
                   </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    <strong>Cost per cubic ft:</strong>{" "}
+                    ₹{container.cost}
+                  </Typography>
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="body2" gutterBottom>
                       <strong>Space Utilization:</strong>{" "}

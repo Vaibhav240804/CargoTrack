@@ -18,43 +18,43 @@ export const createBooking = async (req, res) => {
         .json({ message: "Source and destination cannot be the same." });
     }
 
-    const container = await Container.findOne({ from, to });
-    if (!container) {
+    // Find the first available container on the route
+    const containers = await Container.find({ from, to });
+    if (!containers.length) {
       return res
         .status(400)
-        .json({ message: "No container available for the specified route." });
+        .json({ message: "No containers available for the specified route." });
     }
 
     const parcel = { height, length: width, breadth };
+    const maxParcelDimension = Math.max(parcel.height, parcel.length, parcel.breadth);
 
-    const maxParcelDimension = Math.max(
-      parcel.height,
-      parcel.length,
-      parcel.breadth
-    );
-    const maxContainerDimension = Math.max(
-      container.height,
-      container.length,
-      container.breadth
-    );
+    // Try to find a container with enough space
+    let availableContainer = null;
+    for (const container of containers) {
+      const maxContainerDimension = Math.max(container.height, container.length, container.breadth);
 
-    if (maxParcelDimension > maxContainerDimension) {
+      if (maxParcelDimension > maxContainerDimension) {
+        continue; // Skip this container if parcel is too large
+      }
+
+      const isAvailable = await container.checkAvailableSpace(parcel);
+      if (isAvailable) {
+        availableContainer = container;
+        break; // Container found with enough space
+      }
+    }
+
+    // If no container is available
+    if (!availableContainer) {
       return res.status(400).json({
-        message: "Parcel dimensions exceed container dimensions.",
+        message: "Not enough space to accommodate the parcel in any available container.",
         proceedToPayment: false,
       });
     }
 
-    const isAvailable = await container.checkAvailableSpace(parcel);
-    if (!isAvailable) {
-      return res.status(400).json({
-        message: "Not enough space to accommodate the parcel.",
-        proceedToPayment: false,
-      });
-    }
-
-    const cost =
-      parcel.height * parcel.length * parcel.breadth * container.cost;
+    // Calculate cost based on the selected container
+    const cost = parcel.height * parcel.length * parcel.breadth * availableContainer.cost;
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -65,6 +65,7 @@ export const createBooking = async (req, res) => {
       user.bookings = [];
     }
 
+    // Create a new booking for the selected container
     const newBooking = new Booking({
       from,
       to,
@@ -75,7 +76,7 @@ export const createBooking = async (req, res) => {
       cost,
       status: "Pending",
       requiredOn: new Date(),
-      destinedContainer: container._id,
+      destinedContainer: availableContainer._id,
     });
 
     await newBooking.save(); // Add await for saving booking
@@ -84,7 +85,7 @@ export const createBooking = async (req, res) => {
     await user.save(); // Add await for saving user
 
     res.status(200).json({
-      message: `Found container, available from ${container.availableFrom} at ${container.from} to ${container.to}.`,
+      message: `Booking successful. Parcel will be shipped using container from ${availableContainer.from} to ${availableContainer.to}.`,
       proceedToPayment: true,
       bookingID: newBooking._id,
       cost: cost,
