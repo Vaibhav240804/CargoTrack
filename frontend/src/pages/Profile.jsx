@@ -7,7 +7,11 @@ import {
   Box,
   Avatar,
   Divider,
+  Icon,
 } from "@mui/material";
+import AccessTimeIcon from "@mui/icons-material/AccessTime"; 
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"; 
+
 import { deepPurple } from "@mui/material/colors";
 import Api from "../api";
 import { toast } from "react-toastify";
@@ -101,12 +105,13 @@ const Profile = ({ email }) => {
                   >
                     <strong>To:</strong> {booking.to}
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    gutterBottom
-                  >
-                    <strong>Status:</strong> {booking.status}
+                  <Typography variant="body2" color="textSecondary" gutterBottom>
+                      <strong>Status:</strong> {booking.status} 
+                      {booking.status === "Pending" ? (
+                        <AccessTimeIcon sx={{ ml: 1, color: "orange" }} />
+                      ) : (
+                        <CheckCircleIcon sx={{ ml: 1, color: "green" }} />
+                      )}
                   </Typography>
                   <Typography
                     variant="body2"
