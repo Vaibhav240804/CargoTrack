@@ -10,6 +10,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 
+
 const Payment = () => {
   const { bookingId } = useParams();
   const navigate = useNavigate();

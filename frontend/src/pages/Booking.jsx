@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, Autocomplete } from "@mui/material";
 import {
   EmailOutlined,
   PhoneOutlined,
@@ -12,6 +12,8 @@ import Right from "../animated-components/Right";
 import Center from "../animated-components/Center";
 import DCenter from "../animated-components/DCenter";
 import Api from "../api/index.js";
+// import Api from "../api";
+
 
 const Bookings = () => {
   const [user, setUser] = useState(null);
@@ -43,12 +45,19 @@ const Bookings = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleDropdownChange = (name, value) => {
+    setFormData({ ...formData, [name]: value });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await Api.bookCargo(formData);
       if (response.data.proceedToPayment) {
         toast.success(response.data.message);
+        toast.success(`Pay ₹${response.data.cost} to proceed.`, {
+          autoClose: 10000,
+        });
         setMessage("Redirecting to payment...");
         navigate(`/payment/${response.data.bookingID}`);
       } else {
@@ -58,6 +67,20 @@ const Bookings = () => {
       toast.error(error.response?.data.message || "Booking failed. Try again.");
     }
   };
+
+  const [cities, setCities] = useState([]);
+
+  useEffect(() => {
+    // Fetch cities from localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.cities) {
+      setCities(user.cities);
+    } else {
+      toast.error("Unable to load cities from localStorage.");
+    }
+  }, []);
+  
+
 
   return (
     <div className="bg-[#0e1b4d] text-white min-h-screen flex flex-col items-center justify-center">
@@ -102,7 +125,7 @@ const Bookings = () => {
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 onSubmit={handleSubmit}
               >
-                <TextField
+                {/* <TextField
                   label="From"
                   variant="outlined"
                   InputLabelProps={{ style: { color: "#FFF" } }}
@@ -125,7 +148,48 @@ const Bookings = () => {
                   fullWidth
                   name="to"
                   onChange={handleInputChange}
+                /> */}
+
+                <Autocomplete
+                  options={cities}
+                  getOptionLabel={(option) => option}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="From"
+                      variant="outlined"
+                      InputLabelProps={{ style: { color: "#FFF" } }}
+                      InputProps={{
+                        ...params.InputProps,
+                        style: { color: "#FFF", borderColor: "#FFF" },
+                      }}
+                      className="bg-[#1E2247] border border-white"
+                      fullWidth
+                    />
+                  )}
+                  onChange={(event, value) => handleDropdownChange("from", value)}
                 />
+
+                <Autocomplete
+                  options={cities}
+                  getOptionLabel={(option) => option}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="To"
+                      variant="outlined"
+                      InputLabelProps={{ style: { color: "#FFF" } }}
+                      InputProps={{
+                        ...params.InputProps,
+                        style: { color: "#FFF", borderColor: "#FFF" },
+                      }}
+                      className="bg-[#1E2247] border border-white"
+                      fullWidth
+                    />
+                  )}
+                  onChange={(event, value) => handleDropdownChange("to", value)}
+                />
+
 
                 <div className="flex flex-wrap gap-4">
                   <TextField
@@ -134,6 +198,7 @@ const Bookings = () => {
                       pattern: "[0-9]*",
                       style: { color: "#FFF", borderColor: "#FFF" },
                     }}
+                    type="number"
                     label="Height of the Parcel"
                     variant="outlined"
                     InputLabelProps={{ style: { color: "#FFF" } }}
@@ -145,6 +210,7 @@ const Bookings = () => {
                   <TextField
                     label="Width of the Parcel"
                     variant="outlined"
+                    type="number"
                     InputLabelProps={{ style: { color: "#FFF" } }}
                     InputProps={{
                       style: { color: "#FFF", borderColor: "#FFF" },
@@ -159,6 +225,7 @@ const Bookings = () => {
                   <TextField
                     label="Breadth of the Parcel"
                     variant="outlined"
+                    type="number"
                     InputLabelProps={{ style: { color: "#FFF" } }}
                     InputProps={{
                       inputMode: "numeric",

@@ -22,7 +22,7 @@ router.post("/admin/container", addContainer);
 router.post("/admin/container/item", addItemToContainer);
 router.get("/admin/:adminId/containers", getContainers);
 router.post("/booking", auth, createBooking);
-router.post("/booking/payment", makePayment);
+router.post("/booking/payment",auth, makePayment);
 router.get("/booking", auth, getBookings);
 
 export default router;
