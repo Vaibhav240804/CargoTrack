@@ -1,40 +1,82 @@
 import mongoose from "mongoose";
-import cities from "../data/cities.json" assert { type: "json" };
 
-// Schema for a cargo item
-const cargoItemSchema = new mongoose.Schema({
+const citySchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    unique: true,
+    trim: true,
   },
-  length: {
-    type: Number,
-    required: true, // Length of the item
-  },
-  breadth: {
-    type: Number,
-    required: true, // Breadth of the item
-  },
-  height: {
-    type: Number,
-    required: true, // Height of the item
-  },
-  from: {
+  state: {
     type: String,
     required: true,
-    enum: cities, // Ensures from city is valid
   },
-  to: {
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+});
+
+const routeSchema = new mongoose.Schema({
+  name: {
     type: String,
     required: true,
-    enum: cities, // Ensures to city is valid
+    unique: true,
   },
-}); 
+  cities: [
+    {
+      city: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "City",
+      },
+      default: [],
+    },
+  ],
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+});
+
+const cargoItemSchema = new mongoose.Schema({
+  height: { type: Number, required: true },
+  width: { type: Number, required: true },
+  breadth: { type: Number, required: true },
+  description: { type: String, required: false },
+  isPaid: { type: Boolean, default: false },
+  cost: { type: Number, required: true },
+  destinedContainer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Container",
+    required: false,
+  },
+  route: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Route",
+  },
+  trackingLogs: [
+    {
+      location: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "City",
+      },
+      status: {
+        type: String,
+        enum: ["PICKED_UP", "IN_TRANSIT", "ARRIVED"],
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+      default: [],
+    },
+  ],
+});
 
 cargoItemSchema.methods.calculateVolume = function () {
-  return this.length * this.breadth * this.height; 
+  return this.length * this.breadth * this.height;
 };
- 
+
 const containerSchema = new mongoose.Schema({
   length: {
     type: Number,
@@ -48,6 +90,10 @@ const containerSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  cost: {
+    type: Number,
+    required: true,
+  },
   availableFrom: {
     type: Date,
     required: true,
@@ -56,35 +102,49 @@ const containerSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  from: {
-    type: String,
-    required: true,
-    enum: cities, // Add enum using city list
-  },
-  to: {
-    type: String,
-    required: true,
-    enum: cities, // Add enum using city list
-  },
-  cost: {
-    type: Number,
-    required: true,
-  },
   cargoItems: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "CargoItem", 
+      ref: "CargoItem",
       default: [],
     },
   ],
+  route: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Route",
+    required: true,
+  },
+  currentLocation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "City",
+  },
+  locationHistory: [
+    {
+      city: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "City",
+      },
+      arrivalTime: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  status: {
+    type: String,
+    enum: ["PENDING", "IN_TRANSIT", "COMPLETED"],
+    default: "PENDING",
+  },
 });
 
 containerSchema.methods.calculateVolume = function () {
-  return this.length * this.breadth * this.height; 
+  return this.length * this.breadth * this.height;
 };
 
 containerSchema.methods.checkAvailableSpace = async function (parcel) {
-  const currentCargoItems = await CargoItem.find({ _id: { $in: this.cargoItems } });
+  const currentCargoItems = await CargoItem.find({
+    _id: { $in: this.cargoItems },
+  });
 
   let currentUsedSpace = currentCargoItems.reduce(
     (acc, item) => acc + parseFloat(item.calculateVolume()),
@@ -92,17 +152,18 @@ containerSchema.methods.checkAvailableSpace = async function (parcel) {
   );
 
   let totalVolume = this.calculateVolume();
-  let parcelVolume = parseFloat(parcel.length) * parseFloat(parcel.breadth) * parseFloat(parcel.height);
-  
+  let parcelVolume =
+    parseFloat(parcel.length) *
+    parseFloat(parcel.breadth) *
+    parseFloat(parcel.height);
+
   totalVolume = parseFloat(totalVolume);
   currentUsedSpace = parseFloat(currentUsedSpace);
   parcelVolume = parseFloat(parcelVolume);
 
   console.log(totalVolume, currentUsedSpace, parcelVolume);
-  if(totalVolume === currentUsedSpace)
-      return false;
-  if(totalVolume < currentUsedSpace + parcelVolume)
-      return false;
+  if (totalVolume === currentUsedSpace) return false;
+  if (totalVolume < currentUsedSpace + parcelVolume) return false;
   return true;
 };
 
@@ -114,11 +175,6 @@ containerSchema.methods.percentageUsed = function () {
   );
   const totalVolume = this.calculateVolume();
   return (currentUsedSpace / totalVolume) * 100;
-};
-
-
-containerSchema.methods.isSameRoute = function () {
-  return this.from === this.to;
 };
 
 const adminSchema = new mongoose.Schema({
@@ -154,5 +210,7 @@ const adminSchema = new mongoose.Schema({
 const Admin = mongoose.model("Admin", adminSchema);
 const CargoItem = mongoose.model("CargoItem", cargoItemSchema);
 const Container = mongoose.model("Container", containerSchema);
+const City = mongoose.model("City", citySchema);
+const Route = mongoose.model("Route", routeSchema);
 
-export { Admin, CargoItem, Container };
+export { Admin, CargoItem, Container, City, Route };

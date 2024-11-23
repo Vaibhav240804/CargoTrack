@@ -12,7 +12,6 @@ import Right from "../animated-components/Right";
 import Center from "../animated-components/Center";
 import DCenter from "../animated-components/DCenter";
 import Api from "../api/index.js";
-// import Api from "../api";
 
 
 const Bookings = () => {

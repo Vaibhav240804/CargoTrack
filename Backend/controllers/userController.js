@@ -5,9 +5,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import { Admin } from "../models/cargoModels.js";
-import cities from "../data/cities.json" assert { type: "json" };
-
+import { Admin, City, Route} from "../models/cargoModels.js";
 
 dotenv.config();
 
@@ -137,6 +135,15 @@ class UserController {
     try {
       const { email, otp } = req.body;
       const user = await User.findOne({ email });
+      const routes = await Route.find({}).populate("cities.city");
+      const cities = routes.map((route) => {
+        const firstCity = route.cities[0].city;
+        const lastCity = route.cities[route.cities.length - 1].city;
+        return { firstCity, lastCity };
+      });
+
+      const allCities = routes.map((route) => route.cities.map((city) => city.city));
+
       if (otp == 123456) {
         const secretKey = process.env.JWTkey;
         const token = jwt.sign(
@@ -145,6 +152,9 @@ class UserController {
             email: user.email,
             name: user.name,
             isAdmin: false,
+            cities: allCities,
+            citypairs: cities,
+
           },
           secretKey,
           { expiresIn: "12h" }
@@ -167,7 +177,8 @@ class UserController {
               id: aduser._id,
               email: aduser.email,
               isAdmin: true,
-              cities: cities,
+              cities: allCities,
+              citypairs: cities,
             },
             secretKey,
             { expiresIn: "12h" }
@@ -186,7 +197,8 @@ class UserController {
           email: user.email,
           name: user.name,
           isAdmin: false,
-          cities: cities,
+          cities: allCities,
+          citypairs: cities,
         },
         secretKey,
         { expiresIn: "12h" }
@@ -211,7 +223,6 @@ class UserController {
           email: user.email,
           phone: user.phone,
           bookings: user.bookings,
-        
         }
 
        });

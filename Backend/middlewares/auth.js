@@ -17,7 +17,8 @@ const auth = (req, res, next) => {
       const { id, email } = user;
       req.body.userID = id;
       req.body.email = email;
-      console.log("auth check",req.body);
+      req.body.isAdmin = user.isAdmin;
+      console.log("auth check", req.body);
     } else {
       return res.status(401).json({ message: "Unauthorized User" });
     }

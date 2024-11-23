@@ -119,7 +119,6 @@ class Api {
     }
   }
 
-  // Set a new container for the admin
   static async setContainer({ adminId, containerData }) {
     try {
       const response = await api.post(`api/cargo/admin/container`, {
@@ -142,7 +141,7 @@ class Api {
     }
   }
 
-  static async getBookings(data) {
+  static async getBookings() {
     const Token = localStorage.getItem("token");
     try {
       const response = await api.get(`/api/cargo/booking`, {
@@ -158,7 +157,6 @@ class Api {
   }
 
   static async makePayment(bookingId) {
-    // get token from local storage
     const Token = localStorage.getItem("token");
     try {
       const response = await api.post(
@@ -180,6 +178,66 @@ class Api {
       } else {
         throw error;
       }
+    }
+  }
+
+  static async addCity(data) {
+    const Token = localStorage.getItem("token");
+    try {
+      const response = await api.post(`/api/cargo/admin/addcity`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Token}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getCities() {
+    const Token = localStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/cargo/admin/getcities`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Token}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async addRoute(data) {
+    const Token = localStorage.getItem("token");
+    try {
+      const response = await api.post(`/api/cargo/admin/addroutes`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Token}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getRoutes() {
+    const Token = localStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/cargo/admin/getroutes`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Token}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      throw error;
     }
   }
 }

@@ -1,206 +1,137 @@
 import React, { useState, useEffect } from "react";
-import { Button, TextField, Grid, MenuItem } from "@mui/material";
-import { toast } from "react-toastify";
+import { Box, TextField, Button, MenuItem, Typography } from "@mui/material";
 import Api from "../api";
+import { toast } from "react-toastify";
 
-export const ContainerForm = ({ adminId, onContainerAdded }) => {
-  const [formData, setFormData] = useState({
-    length: "",
-    breadth: "",
-    height: "",
-    availableFrom: "",
-    availableUntil: "",
-    from: "",
-    to: "",
-    cost: "",
-  });
-
-  const [cities, setCities] = useState([]);
-  const [minDate, setMinDate] = useState("");
+export const ContainerForm = ({ onContainerAdded, routes }) => {
+  const [length, setLength] = useState("");
+  const [breadth, setBreadth] = useState("");
+  const [height, setHeight] = useState("");
+  const [cost, setCost] = useState("");
+  const [routeId, setRoute] = useState("");
+  const [routesList, setRoutes] = useState([]);
+  const [adminId, setAdminId] = useState("");
+  const [availableFrom, setAvailableFrom] = useState("");
+  const [availableUntil, setAvailableUntil] = useState("");
 
   useEffect(() => {
-    // Fetch cities from localStorage
     const user = JSON.parse(localStorage.getItem("user"));
-    if (user && user.cities) {
-      setCities(user.cities);
-    } else {
-      toast.error("Unable to load cities from localStorage.");
-    }
-
-    // Calculate the minimum date (day after today)
-    const today = new Date();
-    today.setDate(today.getDate() + 1); // Add one day
-    setMinDate(today.toISOString().split("T")[0]);
+    const adminId = user?.id;
+    setAdminId(adminId);
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  useEffect(() => {
+    if (routes) {
+      setRoutes(routes);
+    }
+  }, [routes]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Client-side validation to prevent "from" and "to" being the same
-    if (formData.from === formData.to) {
-      toast.error("Source and destination cannot be the same.");
-      return;
-    }
-
     try {
-      const response = await Api.setContainer({
-        adminId,
-        containerData: formData,
-      });
+      const containerData = {
+        length,
+        breadth,
+        height,
+        availableFrom,
+        availableUntil,
+        cost,
+        routeId,
+      };
+      await Api.setContainer({ adminId, containerData });
       toast.success("Container added successfully!");
       onContainerAdded();
-      setFormData({
-        length: "",
-        breadth: "",
-        height: "",
-        availableFrom: "",
-        availableUntil: "",
-        from: "",
-        to: "",
-        cost: "",
-      });
-    } catch (error) {
-      console.error("Error adding container", error);
-      toast.error(error.response?.data?.message || "Error adding container");
+      setLength("");
+      setBreadth("");
+      setHeight("");
+      setCost("");
+      setRoute("");
+    } catch (err) {
+      console.error("Error adding container:", err);
+      toast.error("Failed to add container.");
     }
   };
 
   return (
-    <div className="container-form mb-10">
-      <h2
-        style={{ marginBottom: "20px", fontSize: "24px", fontWeight: "bold" }}
-      >
-        Add Container
-      </h2>
+    <Box>
+      <Typography variant="h5">Add Container</Typography>
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type="number"
-              label="Length (ft)"
-              name="length"
-              value={formData.length}
-              onChange={handleChange}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type="number"
-              label="Breadth (ft)"
-              name="breadth"
-              value={formData.breadth}
-              onChange={handleChange}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type="number"
-              label="Height (ft)"
-              name="height"
-              value={formData.height}
-              onChange={handleChange}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Available From"
-              name="availableFrom"
-              InputLabelProps={{ shrink: true }}
-              value={formData.availableFrom}
-              onChange={handleChange}
-              inputProps={{ min: minDate }}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Available Until"
-              name="availableUntil"
-              InputLabelProps={{ shrink: true }}
-              value={formData.availableUntil}
-              onChange={handleChange}
-              inputProps={{ min: formData.availableFrom || minDate }}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              select
-              fullWidth
-              label="From"
-              name="from"
-              value={formData.from}
-              onChange={handleChange}
-              required
-            >
-              {cities.map((city, index) => (
-                <MenuItem key={index} value={city}>
-                  {city}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              select
-              fullWidth
-              label="To"
-              name="to"
-              value={formData.to}
-              onChange={handleChange}
-              required
-            >
-              {cities.map((city, index) => (
-                <MenuItem key={index} value={city}>
-                  {city}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              type="number"
-              fullWidth
-              label="Cost per Cubic ft"
-              name="cost"
-              value={formData.cost}
-              onChange={handleChange}
-              required
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              style={{
-                padding: "12px 0",
-                fontSize: "16px",
-                fontWeight: "bold",
-                margin: "10px",
-                width: "50%",
-              }}
-            >
-              Add Container
-            </Button>
-          </Grid>
-        </Grid>
+        <TextField
+          label="Length"
+          type="number"
+          fullWidth
+          value={length}
+          onChange={(e) => setLength(e.target.value)}
+          required
+          margin="normal"
+        />
+        <TextField
+          label="Breadth"
+          type="number"
+          fullWidth
+          value={breadth}
+          onChange={(e) => setBreadth(e.target.value)}
+          required
+          margin="normal"
+        />
+
+        <TextField
+          label="Height"
+          type="number"
+          fullWidth
+          value={height}
+          onChange={(e) => setHeight(e.target.value)}
+          required
+          margin="normal"
+        />
+
+        <TextField
+          label="Available From"
+          type="date"
+          fullWidth
+          value={availableFrom}
+          onChange={(e) => setAvailableFrom(e.target.value)}
+          required
+          margin="normal"
+        />
+        <TextField
+          label="Available Until"
+          type="date"
+          fullWidth
+          value={availableUntil}
+          onChange={(e) => setAvailableUntil(e.target.value)}
+          required
+          margin="normal"
+        />
+
+        <TextField
+          label="Cost"
+          type="number"
+          fullWidth
+          value={cost}
+          onChange={(e) => setCost(e.target.value)}
+          required
+          margin="normal"
+        />
+        <TextField
+          label="Route"
+          select
+          fullWidth
+          value={routeId}
+          onChange={(e) => setRoute(e.target.value)}
+          required
+          margin="normal"
+        >
+          {routesList.map((route) => (
+            <MenuItem key={route._id} value={route._id}>
+              {route.name}
+            </MenuItem>
+          ))}
+        </TextField>
+        <Button variant="contained" color="primary" type="submit" fullWidth>
+          Add Container
+        </Button>
       </form>
-    </div>
+    </Box>
   );
 };
